@@ -31,7 +31,10 @@ public class ChartLegend {
     }
 
     public void draw(Graphics g, Rectangle rect) {
-        rect.height=(fontHeight+4)*chart.getSeriesCount();
+        if (chart.getSeriesCount()>0){
+        
+            rect.height=(fontHeight+4)*chart.getSeriesCount();
+        }
         
         g.setFont(chartFont);
         g.setColor(backGround);

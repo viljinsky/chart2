@@ -8,6 +8,7 @@ package ru.viljinsky.chart;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 
@@ -47,7 +48,35 @@ abstract class ChartElement{
     public Integer getValue() {
         return series.getYValue(position);
     }
+    
+    public Integer getValue(Float k){
+        return series.getYValueK(position, k);
+    }
+    
+    public String toString(){
+        return (series!=null?series.name+" ":"")+position+" "+value.toString();
+    }
+    }
+
+class DefaultChartElement extends ChartElement{
+
+    public DefaultChartElement(ChartSeries series, Integer position) {
+        super(series, position);
+    }
+
+    @Override
+    public void draw(Graphics g) {
+        Point p = series.getElementPoint(position);
+        bounds = new Rectangle(p.x-5,p.y-5,10,10);
+        g.setColor(series.color);
+        g.fillRect(p.x-5, p.y-5, 10, 10);
+        g.setColor(Color.black);
+        g.drawRect(p.x-5, p.y-5, 10,10);
+        
+        
+    }
 }
+
 
 class ChartPoint extends ChartElement{
 
@@ -103,9 +132,9 @@ class ChartBar extends ChartElement{
 
     
 
-    @Override
-    public String toString() {
-        return "bar xValue:" + position + " yValue:" + value + " series:" + series.getCaption();
-    }
+//    @Override
+//    public String toString() {
+//        return "bar xValue:" + position + " yValue:" + value + " series:" + series.getCaption();
+//    }
     
 }

@@ -15,10 +15,18 @@ import java.util.List;
 import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Iterator;
 import javax.swing.*;
 
-
+/**
+ * Панель для отображения графиков
+ * Chart chart = new Chart();
+ * chart.setCaption("Средняя температура")
+ * chart.addSeries(series1);
+ * chart.addSeries(series2);
+ * chart.addSeries(series3);
+ * cahrt.update();
+ * @author vadik
+ */
 public class Chart extends JPanel{
     String caption="Chart demo";
     Font defaultFont = new Font("courier",Font.PLAIN,12);

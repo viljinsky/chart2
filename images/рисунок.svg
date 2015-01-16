@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="Новый документ 1">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="8.9375382"
+     inkscape:cx="181.21728"
+     inkscape:cy="948.05275"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1042"
+     inkscape:window-height="874"
+     inkscape:window-x="199"
+     inkscape:window-y="36"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g2997"
+       inkscape:export-filename="D:\development\Chart\images\bar.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(-15.119759,-1.0956347)">
+      <rect
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="D:\development\Chart\images\bar.png"
+         y="89.505043"
+         x="145.71428"
+         height="32"
+         width="32"
+         id="rect2985"
+         style="fill:#ffd5d5;fill-opacity:1;stroke:#0000ff;stroke-width:0.796;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:0.74545456;stroke-dasharray:none" />
+      <rect
+         y="93.097443"
+         x="150.32109"
+         height="22.350948"
+         width="3.5790734"
+         id="rect2987"
+         style="fill:#ffff00;fill-opacity:1;stroke:#008000;stroke-width:0.796;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:0.74545456;stroke-dasharray:none" />
+      <rect
+         y="96.384346"
+         x="158.57487"
+         height="19.283171"
+         width="3.2138619"
+         id="rect2989"
+         style="fill:#ffff00;fill-opacity:1;stroke:#008000;stroke-width:0.796;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:0.74545456;stroke-dasharray:none" />
+      <rect
+         y="93.754822"
+         x="165.58693"
+         height="22.058779"
+         width="3.9442852"
+         id="rect2991"
+         style="fill:#ffff00;fill-opacity:1;stroke:#008000;stroke-width:0.796;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:0.74545456;stroke-dasharray:none" />
+      <rect
+         y="96.895645"
+         x="154.63058"
+         height="18.625792"
+         width="3.2869043"
+         id="rect2993"
+         style="fill:#ffd5d5;fill-opacity:1;stroke:#ff0000;stroke-width:0.796;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:0.74545456;stroke-dasharray:none" />
+      <rect
+         y="102.22773"
+         x="162.22699"
+         height="13.512829"
+         width="2.6295233"
+         id="rect2995"
+         style="fill:#ffd5d5;fill-opacity:1;stroke:#ff0000;stroke-width:0.796;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:0.74545456;stroke-dasharray:none" />
+    </g>
+    <g
+       id="g3069"
+       inkscape:export-filename="D:\development\Chart\images\plot.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <rect
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="D:\development\Chart\images\bar.png"
+         y="88.492043"
+         x="165.29103"
+         height="32"
+         width="32"
+         id="rect2985-8"
+         style="fill:#ffd5d5;fill-opacity:1;stroke:#ff0000;stroke-width:0.79600000000000004;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:0.74545455999999999;stroke-dasharray:none" />
+      <rect
+         y="94.631332"
+         x="168.36253"
+         height="3.2869043"
+         width="3.3599465"
+         id="rect3059"
+         style="fill:#ffff00;fill-opacity:1;stroke:#008000;stroke-width:0.796;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:0.74545456;stroke-dasharray:none" />
+      <rect
+         y="99.452126"
+         x="178.58847"
+         height="3.0677774"
+         width="3.2138619"
+         id="rect3061"
+         style="fill:#ffff00;fill-opacity:1;stroke:#008000;stroke-width:0.796;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:0.74545456;stroke-dasharray:none" />
+      <rect
+         y="96.384346"
+         x="189.10655"
+         height="2.7756081"
+         width="2.8486502"
+         id="rect3063"
+         style="fill:#ffff00;fill-opacity:1;stroke:#008000;stroke-width:0.796;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:0.74545456;stroke-dasharray:none" />
+      <rect
+         y="100.98602"
+         x="172.81812"
+         height="3.0677774"
+         width="2.994735"
+         id="rect3065"
+         style="fill:#ffff00;fill-opacity:1;stroke:#ff0000;stroke-width:0.796;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:0.74545456;stroke-dasharray:none" />
+      <rect
+         y="105.4416"
+         x="184.13968"
+         height="2.1182272"
+         width="2.9216926"
+         id="rect3067"
+         style="fill:#ffff00;fill-opacity:1;stroke:#ff0000;stroke-width:0.796;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:0.74545456;stroke-dasharray:none" />
+    </g>
+    <rect
+       style="fill:#ffd5d5;fill-opacity:1;stroke:#0000ff;stroke-width:0.79600000000000004;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:0.74545455999999999;stroke-dasharray:none"
+       id="rect2985-8-7"
+       width="32"
+       height="32"
+       x="199.84004"
+       y="88.126831"
+       inkscape:export-filename="D:\development\Chart\images\area.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:#ffff00;stroke:#008000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 203.56894,98.940829 7.74248,-2.702566 8.61899,6.427727 8.03466,-1.24172 0.073,15.63105 -24.61526,0 z"
+       id="path3125"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccc" />
+    <path
+       style="fill:#ffaaaa;stroke:#ff0000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 203.34981,117.05532 0.14609,-12.41719 7.88856,3.21386 8.47291,-1.82606 8.1077,5.40513 0.14608,5.62426 z"
+       id="path3127"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccc" />
+  </g>
+</svg>

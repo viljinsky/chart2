@@ -8,6 +8,7 @@ package ru.viljinsky.chart;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.util.HashMap;
@@ -25,7 +26,8 @@ import java.awt.Graphics2D;
 enum SeriesType{
     BAR_CHART,
     LINE_CHART,
-    AREA_CHART
+    AREA_CHART,
+    STACKED
 }
 
 abstract class ChartSeries{
@@ -37,6 +39,25 @@ abstract class ChartSeries{
     protected SeriesType seriesType;
     
     public abstract void draw(Graphics g);
+    public abstract ChartElement createElement(Integer id);
+    
+    
+    public Point getElementPoint(Integer xPosition){
+        Integer x,y;
+        Float kx,ky;
+        Rectangle r = chart.getWorkArea();
+
+        ChartElement element = findElement(xPosition);
+        if (element == null) return null;
+        
+        ky = new Float(r.height/(chart.yAxis.maxValue-chart.yAxis.minValue));
+        kx = new Float(r.width/(chart.xAxis.maxValue-chart.xAxis.minValue));
+        y = r.y+r.height - element.getValueK(ky) + Math.round(chart.yAxis.minValue*ky);
+        x = r.x+ Math.round((xPosition-chart.xAxis.minValue)*kx);
+
+        return new Point(x,y);
+    }
+    
 
     public ChartSeries(String name, Color color) {
         this.color = color;
@@ -161,7 +182,6 @@ abstract class ChartSeries{
             if (v instanceof Integer) {
                 return Math.round((Integer) v * k);
             } else if (v instanceof Long) {
-//                Integer L = ((Long) v ).intValue();
                 return  Math.round(((Long) v ).intValue()*k);
             } else if (v instanceof Float) {
                 return Math.round((Float) v * k);
@@ -175,25 +195,48 @@ abstract class ChartSeries{
 
     
     public void addValue(Integer xValue, Object yValue) {
-        data.put(xValue, yValue);
+        if (yValue instanceof String){
+            Float f = Float.parseFloat((String)yValue);
+            data.put(xValue, f);            
+        } else 
+            data.put(xValue, yValue);
     }
 
-    public abstract ChartElement createElement();
-    
     
     public void rebuild() {
         elements = new ArrayList<>();
         Set<Integer> keySet = data.keySet();
-        ChartBar bar;
+        ChartElement element;
         int id;
         for (Iterator it = keySet.iterator(); it.hasNext();) {
             id = (Integer) it.next();
-            bar = new ChartBar(this, id);
-            bar.value = data.get(id);
-            elements.add(bar);
+            element  = createElement(id);
+            element.value = data.get(id);
+            elements.add(element);
         }
     }
 
+    public void setData(HashMap<Integer, Object> data) {
+        this.data = new HashMap<>();
+        for (Integer key : data.keySet()) {
+            this.data.put(key, data.get(key));
+        }
+        rebuild();
+    }
+
+
+    /**
+     * Создание экземпляра случайных данных с указанным количеством элементов
+     * @param count колличество элементов
+     * @return сгенерированный набор данных
+     */
+    public static HashMap<Integer, Object> createData(Integer count) {
+        HashMap<Integer, Object> result = new HashMap<>();
+        for (int i = 0; i < count; i++) {
+            result.put(i, Math.random() * 100);
+        }
+        return result;
+    }
     
     
     
@@ -208,6 +251,9 @@ abstract class ChartSeries{
                 break;
             case AREA_CHART:
                 series=new ChartAreaSeries(caption, color);
+                break;
+            case STACKED:
+                series= new StackedSeries(caption,color);
                 break;
             default:
                 return null;
@@ -224,28 +270,11 @@ class ChartLineSeries extends ChartSeries{
         super(name, color);
     }
     
-    
-    
     @Override
     public String toString(){
         return "LineSeries "+name+" "+color;
     }
 
-    @Override
-    public void rebuild() {
-        elements = new ArrayList<>();
-        Set<Integer> keySet = data.keySet();
-        ChartPoint point;
-        int id;
-        for (Iterator it = keySet.iterator(); it.hasNext();) {
-            id = (Integer) it.next();
-            point = new ChartPoint(this, id);
-            point.value = data.get(id);
-            elements.add(point);
-        }
-    }
-
-    
     @Override
     public void draw(Graphics g) {
         int xPosition;
@@ -277,13 +306,12 @@ class ChartLineSeries extends ChartSeries{
 //                g.drawOval(x-5, y-5, 10, 10);
                 
             }
-            
         }
     }
 
     @Override
-    public ChartElement createElement() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public ChartElement createElement(Integer id) {
+        return new ChartPoint(this, id);
     }
 }
 
@@ -294,25 +322,9 @@ class ChartAreaSeries extends ChartSeries{
     }
     
     @Override
-    public void rebuild() {
-        elements = new ArrayList<>();
-        Set<Integer> keySet = data.keySet();
-        ChartPoint point;
-        int id;
-        for (Iterator it = keySet.iterator(); it.hasNext();) {
-            id = (Integer) it.next();
-            point = new ChartPoint(this, id);
-            point.value = data.get(id);
-            elements.add(point);
-        }
-    }
-    
-
-    @Override
     public void draw(Graphics g2) {
         Graphics2D g = (Graphics2D)g2;
         g.setStroke(new BasicStroke(4));
-       
         
         chart.xAxis.begin();
         Integer xPosition,yPosition;
@@ -347,8 +359,8 @@ class ChartAreaSeries extends ChartSeries{
     }
 
     @Override
-    public ChartElement createElement() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public ChartElement createElement(Integer id) {
+        return new ChartPoint(this, id);
     }
     
 }
@@ -360,36 +372,10 @@ class ChartBarSeries extends ChartSeries{
     }
     
     @Override
-    public void rebuild() {
-        super.rebuild(); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    
-    @Override
     public String toString(){
         return "BarSeries "+name+" "+color;
     }
 
-    public void setData(HashMap<Integer, Object> data) {
-        this.data = new HashMap<>();
-        for (Integer key : data.keySet()) {
-            this.data.put(key, data.get(key));
-        }
-        rebuild();
-    }
-
-    /**
-     * Создание экземпляра случайных данных с указанным количеством элементов
-     * @param count колличество элементов
-     * @return сгенерированный набор данных
-     */
-    public static HashMap<Integer, Object> createData(Integer count) {
-        HashMap<Integer, Object> result = new HashMap<>();
-        for (int i = 0; i < count; i++) {
-            result.put(i, Math.random() * 100);
-        }
-        return result;
-    }
 
     private Integer getOffset(){
         Integer result = 0;
@@ -457,8 +443,35 @@ class ChartBarSeries extends ChartSeries{
     }
 
     @Override
-    public ChartElement createElement() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public ChartElement createElement(Integer id) {
+        return new ChartBar(this, id);
     }
     
+}
+
+class StackedSeries extends ChartSeries{
+
+    public StackedSeries(String name, Color color) {
+        super(name, color);
+    }
+
+    @Override
+    public void draw(Graphics g) {
+        Integer xValue;
+        Point p;
+        ChartElement element ;
+        chart.xAxis.begin();
+        while (chart.xAxis.hasNext()){
+            xValue = chart.xAxis.next();
+            element = findElement(xValue);
+            if (element!=null){
+                element.draw(g);
+            }
+        }
+    }
+
+    @Override
+    public ChartElement createElement(Integer id) {
+        return new DefaultChartElement(this,id);
+    }
 }

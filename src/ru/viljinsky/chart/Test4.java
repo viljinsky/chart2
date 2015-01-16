@@ -23,13 +23,35 @@ package ru.viljinsky.chart;
  * @author vadik
  */
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
+import java.net.URL;
 import javax.swing.*;
 
 public class Test4 extends Chart{
     JMenuBar menuBar;
     JToolBar toolBar;
+    ImageIcon iconBar;
+    ImageIcon iconPlot;
+    ImageIcon iconArea;
+    
+    class A extends AbstractAction{
+
+        public A(String caption,ImageIcon icon){
+            super(caption,icon);
+            putValue(AbstractAction.ACTION_COMMAND_KEY,caption);
+        }
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            doCommand(e.getActionCommand());
+        }
+    }
+    
     public Test4(){
+        
+        iconBar = createImage("bar.png");
+        iconPlot = createImage("plot.png");
+        iconArea = createImage("area.png");
+        
         setCaption( "Времена года");
         xAxis.setCaption("годы");
         yAxis.setCaption("t,0C");
@@ -51,15 +73,21 @@ public class Test4 extends Chart{
         menuBar.add(menu);
         toolBar = new JToolBar();
         for (String s:new String[]{"bar","line","area"}){
-            toolBar.add(new AbstractAction(s) {
+            toolBar.add(new A(s,iconPlot)) ;
                 
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    doCommand(e.getActionCommand());
-                }
-            });
         }
         
+    }
+    
+    public ImageIcon createImage(String name){
+        
+        URL url = getClass().getResource("../images/"+name);
+        if (url!=null){
+            ImageIcon result = new ImageIcon(url);
+            return result;
+        }
+        System.err.println(name+" - not found \n"+url);
+        return null;
     }
     
     public void doCommand(String command){
