@@ -85,7 +85,8 @@ public class Test5  extends JFrame{
     JToolBar toolBar;
     SeriesType seriesType = SeriesType.LINE_CHART;
     static final String[] sessions = {"Зима","Весна","Лето","Осень"};
-    static final Color[] sessionColor= new Color[]{Color.cyan,Color.green,Color.yellow,Color.pink,Color.cyan};
+    static final Color[] sessionColor= new Color[]{Color.cyan,Color.green,
+        Color.yellow,Color.pink,Color.cyan};
     
 
     

@@ -49,6 +49,10 @@ public abstract class ChartSeries{
     protected HashMap<Integer, Object> data = new HashMap<>();
     protected List<ChartElement> elements = new ArrayList<>();
     protected SeriesType seriesType;
+
+    public void setSeriesType(SeriesType seriesType) {
+        this.seriesType = seriesType;
+    }
     protected boolean visible = true;
     protected boolean threeD = false;
 
@@ -68,7 +72,7 @@ public abstract class ChartSeries{
     public Integer getSeriesCount(){
         Integer result = 0;
         for (ChartSeries series:chart.getSeries()){
-            if (series.seriesType== this.seriesType){
+            if (series.isVisible() && series.seriesType== this.seriesType){
                 result+=1;
             }
         }
@@ -81,7 +85,8 @@ public abstract class ChartSeries{
             if (series==this){
                 return result;
             }
-            result+=20;
+            if (series.isVisible())
+                result+=20;
         }
         return result;
     }
@@ -369,14 +374,18 @@ class LineSeries extends ChartSeries{
             element =  findElement(xPosition);
             if (element!=null){
                 Point p = getElementPoint(element);
-            
+               
+                Rectangle b = new Rectangle(p.x-5, p.y-5, 10, 10);
+                element.bounds=b;        
             
                 g.setColor(color);
-                g.fillRect(p.x-5, p.y-5, 10, 10);
+                g.fillRect(b.x, b.y, b.width, b.height);
 
 
                 if (lastX!=null){
+                    
                     g.drawLine(lastX, lastY, p.x, p.y);
+                    
                 }
                 lastX=p.x;
                 lastY=p.y;
@@ -392,7 +401,13 @@ class BarSeries extends ChartSeries{
     public BarSeries(String name, Color color) {
         super(name, color);
     }
+
+    @Override
+    public Integer getOffset() {
+        return  super.getOffset() - (getSeriesCount()*20)/2; 
+    }
     
+
     
     public void drawElement(Graphics g,ChartElement element){
         Integer xOffset = getOffset();
@@ -403,7 +418,7 @@ class BarSeries extends ChartSeries{
         Float ky = chart.getkY();
         Rectangle r = chart.getWorkArea();
         
-        int y2 = r.y+r.height + Math.round(chart.yAxis.minValue*ky);
+        int y2 = r.y+r.height + (chart.yAxis.minValue<0? Math.round(chart.yAxis.minValue*ky):0);
         
         height = Math.abs(y2 - p.y);
         
@@ -411,6 +426,7 @@ class BarSeries extends ChartSeries{
             bound = new Rectangle(p.x+xOffset,p.y,20,height);
         else
             bound =  new Rectangle(p.x+xOffset,y2,20,height);
+        
         element.bounds=bound;
         g.setColor(color);
         g.fillRect(bound.x, bound.y, bound.width, bound.height);
@@ -489,9 +505,9 @@ class AreaSeries extends ChartSeries{
                 x2 = p.x;
                 y1 = p.y;
                 y2 =0;
-                y2=r.y + r.height + Math.round(chart.yAxis.minValue*ky);
-                g.drawLine(x1, y1,x2,y2);
-                g.fillRect(x2-2, y2-2, 5, 5);
+                y2=r.y + r.height + (chart.yAxis.minValue<0? Math.round(chart.yAxis.minValue*ky):0);
+//                g.drawLine(x1, y1,x2,y2);
+//                g.fillRect(x2-2, y2-2, 5, 5);
                       
                 if (lastX1!=null){
                     g.setColor(color);
@@ -522,7 +538,7 @@ class StackedSeries extends ChartSeries{
     
     public void drawElement(Graphics g,ChartElement element){
         
-        int xOffset = getOffset();
+//        int xOffset = getOffset();
         int yOffset = 0;
         
         if (chart.lastValues.get(element.position)!=null){
@@ -537,7 +553,7 @@ class StackedSeries extends ChartSeries{
         
         Rectangle r = chart.getWorkArea();
         
-        int y2 = r.y+r.height + Math.round( chart.yAxis.minValue*ky);
+        int y2 = r.y+r.height + (chart.yAxis.minValue<0?Math.round( chart.yAxis.minValue*ky):0);
         height = Math.abs(y2-p.y);
 
         Rectangle bound; 
@@ -573,7 +589,7 @@ class StackedSeries extends ChartSeries{
                 drawElement(g, element);
             }
         }
-        System.out.println(chart.lastValues);
+//        System.out.println(chart.lastValues);
     }
 }
 

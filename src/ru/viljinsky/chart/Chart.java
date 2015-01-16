@@ -48,6 +48,12 @@ public class Chart extends JPanel{
     List<ChartSeries> seriesList = new ArrayList<>();
     ChartLegend legent;
     HashMap<Integer, Integer> lastValues; // Для стеков
+    ChartElement selectedElement =null;
+
+    public ChartElement getSelectedElement() {
+        return selectedElement;
+    }
+
     
     private float kX;
     private float kY;
@@ -136,9 +142,9 @@ public class Chart extends JPanel{
             public void mousePressed(MouseEvent e) {
                 int x,y;
                 x=e.getX();y=e.getY();
-                ChartElement bar = hitTest(x,y);
-                if (bar!=null){
-                    onBarClick(bar);
+                selectedElement = hitTest(x,y);
+                if (selectedElement!=null){
+                    onBarClick(selectedElement);
                 }
             }
         });
@@ -282,7 +288,11 @@ public class Chart extends JPanel{
         super.paint(g);
         g.setFont(defaultFont);
         Rectangle r ; // Рабочая область диаграммы
-        r = new Rectangle(LEFT_MARGIN,TOP_MARGIN,getWidth()-LEFT_MARGIN-RIGHT_MARGIN,getHeight()-TOP_MARGIN-BOTTON_MARGINE);
+        r = new Rectangle(
+                LEFT_MARGIN,
+                TOP_MARGIN,
+                getWidth()-LEFT_MARGIN-RIGHT_MARGIN,
+                getHeight()-TOP_MARGIN-BOTTON_MARGINE);
         
         g.setColor(Color.white);
         g.fillRect(r.x, r.y, r.width,r.height);
