@@ -13,6 +13,7 @@ package ru.viljinsky.chart;
 // import com.sun.jmx.snmp.BerDecoder;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -35,6 +36,18 @@ public class Chart extends JPanel{
     ChartAxis yAxis;
     List<ChartSeries> seriesList = new ArrayList<>();
     ChartLegend legent;
+    HashMap<Integer, Integer> lastValues; // Для стеков
+    
+    private float kX;
+    private float kY;
+
+    public float getkX() {
+        return kX;
+    }
+
+    public float getkY() {
+        return kY;
+    }
 
     public void setCaption(String caption){
         this.caption=caption;
@@ -119,6 +132,15 @@ public class Chart extends JPanel{
         });
     }
     
+    
+    public ChartSeries findSeries(String seriesName){
+        for (ChartSeries series:seriesList){
+            if (series.name.equals(seriesName)){
+                return series;
+            }
+        }
+        return null;
+    }
     /**
      * Проверка клика мыши по бар-диаграмма
      * @param x позиция мыши
@@ -156,50 +178,6 @@ public class Chart extends JPanel{
                               getHeight()-TOP_MARGIN-BOTTON_MARGINE);
     }
     
-//    /**
-//     * Прорисовка бар-серии 
-//     * @param g контекст графики
-//     * @param rect рабочая область диаграммы
-//     * @param series  прорисовываемая бар-серия
-//     * @param xOffset смещение серии от центра значения по х
-//     */
-//    public void drawSeries(Graphics g,Rectangle rect,ChartSeries series,Integer xOffset){
-//        Integer xValue,yValue,yValue0 ;
-//        ChartElement bar;
-//        
-//        float f = rect.height/(yAxis.maxValue-yAxis.minValue);
-//        
-//        yValue0 = Math.round(-yAxis.minValue*f);
-//        xAxis.begin();
-//        while (xAxis.hasNext()){
-//            xValue = xAxis.next();
-//            bar = series.getElementByValue(xValue);
-//            if (bar!=null){
-//                
-//                yValue = bar.getValueK(f) - Math.round(yAxis.minValue*f);
-//                                                              
-//                int x=getBarCenter(rect, bar.position);
-//                int x1,y1,w,h;
-//                x1 = x+xOffset;
-//                w=20;
-//                
-//                y1=rect.y+rect.height-yValue;
-//                
-//                if (yValue>=0)
-//                    h=(yValue0>0?yValue-yValue0:yValue);
-//                else
-//                    h=(yValue0>0?yValue0:yValue);
-//                
-//                bar.setBounds(new Rectangle(x1,y1,w,h));
-//                bar.draw(g);
-//                
-//                if (yValue0>0){
-//                    y1 = rect.y+rect.height-yValue0;
-//                    g.drawLine(x1, y1, x1+w, y1);
-//                }
-//            }
-//        }
-//    }
     
     /**
      * Находит позицию значения по оси Х
@@ -229,9 +207,6 @@ public class Chart extends JPanel{
         
         Integer value;
         int x1,y1,x2,y2;
-        
-        float kX = rect.width/(xAxis.maxValue-xAxis.minValue);
-        float kY = rect.height/(yAxis.maxValue-yAxis.minValue);
         
         xAxis.begin();
         while (xAxis.hasNext()){
@@ -301,14 +276,16 @@ public class Chart extends JPanel{
         g.fillRect(r.x, r.y, r.width,r.height);
         g.setColor(Color.gray);
         g.drawRect(r.x,r.y,r.width, r.height);
+        
+        kY = new Float(r.height/(yAxis.maxValue-yAxis.minValue));
+        kX = new Float(r.width/(xAxis.maxValue-xAxis.minValue));
+        
         drawAxis(g, r);
         
-//        int barWidth = 20;
-//        int offset = -(getSeriesCount()*barWidth/2);
+        lastValues = new HashMap<>();
         for (ChartSeries series:seriesList){
-            series.draw(g);
-//            drawSeries(g, r, series, offset);
-//            offset+=barWidth;
+            if (series.isVisible())
+                series.draw(g);
         }
         
         int x,y;
@@ -343,6 +320,35 @@ public class Chart extends JPanel{
             if (series.getMaxY()>maxValue) maxValue=series.getMaxY();
         }
         yAxis.setRange(minValue-1, maxValue+1);
+    }
+    
+    public void autoRang2(){
+        Integer minY,maxY;
+        Integer xValue;
+        Integer yValue;
+        HashMap<Integer,Integer> yValues= new HashMap<>();
+        ChartElement element;
+        xAxis.begin();
+        while (xAxis.hasNext()){
+            xValue = xAxis.next();
+            yValue=0;
+            for (ChartSeries series:seriesList){
+                element = series.findElement(xValue);
+                if (element!=null){
+                    yValue+=element.getValue();
+                }
+            }
+            yValues.put(xValue, yValue);
+        }
+        minY=Integer.MAX_VALUE;
+        maxY=Integer.MIN_VALUE;
+        for (Integer n:yValues.keySet()){
+            if (yValues.get(n)<minY) minY=yValues.get(n);
+            if (yValues.get(n)>maxY) maxY=yValues.get(n);
+        }
+        System.out.println(yValues);
+        System.out.println(minY+" "+maxY);
+        yAxis.setRange(minY, maxY);
     }
     
 }

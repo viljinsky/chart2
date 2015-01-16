@@ -13,7 +13,7 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 
 /**
- *
+ * Базовый элемент для  графиков
  * @author vadik
  */
 
@@ -53,6 +53,7 @@ abstract class ChartElement{
         return series.getYValueK(position, k);
     }
     
+    @Override
     public String toString(){
         return (series!=null?series.name+" ":"")+position+" "+value.toString();
     }
@@ -66,75 +67,11 @@ class DefaultChartElement extends ChartElement{
 
     @Override
     public void draw(Graphics g) {
-        Point p = series.getElementPoint(position);
+        Point p = series.getElementPoint(this);
         bounds = new Rectangle(p.x-5,p.y-5,10,10);
         g.setColor(series.color);
         g.fillRect(p.x-5, p.y-5, 10, 10);
         g.setColor(Color.black);
         g.drawRect(p.x-5, p.y-5, 10,10);
-        
-        
     }
-}
-
-
-class ChartPoint extends ChartElement{
-
-    public ChartPoint(ChartSeries series, Integer position) {
-        super(series, position);
-    }
-
-    @Override
-    public void draw(Graphics g) {
-        int x,y,w,h;
-        x=bounds.x;
-        y=bounds.y;
-        w=bounds.width;
-        h=bounds.height;
-        g.setColor(series.getColor());
-        g.fillOval(x,y,w,h);
-        g.setColor(Color.black);
-        g.drawOval(x,y,w,h);
-        
-        g.drawString(value.toString(), x, y);
-    }
-}
-
-class ChartBar extends ChartElement{
-
-    public ChartBar(ChartSeries series, Integer position) {
-        super(series, position);
-    }
-
-    @Override
-    public void draw(Graphics g) {
-        int x,y,w,h;
-        x  = bounds.x;
-        y  = bounds.y;
-        h  = bounds.height;
-        w  = bounds.width;
-        
-        g.setColor(series.getColor());
-        g.fillRect(x,y,w,h);
-        // 3d
-        g.setColor(Color.gray);
-        g.drawLine(x, y, x+w, y);
-        g.drawLine(x+w, y, x+w, y+h);
-        
-        Polygon p = new Polygon(new int[]{x,x+10,x+10+w,x+10+w,x+w,x+w,x},
-                                new int[]{y,y-10,y-10,y-10+h,y+h,y,y},
-                                7 );
-        g.setColor(series.getColor());
-        g.fillPolygon(p);
-        g.setColor(Color.gray);
-        g.drawPolygon(p);
-    }
-
-    
-
-//    @Override
-//    public String toString() {
-//        return "bar xValue:" + position + " yValue:" + value + " series:" + series.getCaption();
-//    }
-    
 }

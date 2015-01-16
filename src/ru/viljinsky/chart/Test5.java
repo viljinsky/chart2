@@ -84,6 +84,10 @@ public class Test5  extends JFrame{
     JMenuBar menuBar;
     JToolBar toolBar;
     SeriesType seriesType = SeriesType.LINE_CHART;
+    static final String[] sessions = {"Зима","Весна","Лето","Осень"};
+    static final Color[] sessionColor= new Color[]{Color.cyan,Color.green,Color.yellow,Color.pink,Color.cyan};
+    
+
     
     class TestAction extends AbstractAction{
         
@@ -100,7 +104,12 @@ public class Test5  extends JFrame{
     public Test5(){
         JPanel panel = new JPanel(new BorderLayout());
         panel.setPreferredSize(new Dimension(800,600));
+        
         chart = new Chart();
+        chart.setCaption("Температура по сесознам");
+        chart.getYAxis().minorTick=5;
+        chart.getXAxis().setCaption("год");
+        
         table = new JTable(1,2);
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setRightComponent(chart);
@@ -127,9 +136,22 @@ public class Test5  extends JFrame{
         }
         menuBar.add(menu);
         
+        menu = new JMenu("tool");
+        menuItem = new JMenuItem(new TestAction("auto"));
+        menu.add(menuItem);
+        
+        menuItem = new JMenuItem(new TestAction("auto2"));
+        menu.add(menuItem);
+        
+        menuBar.add(menu);
+        
         toolBar = new JToolBar();
         for (SeriesType type:SeriesType.values()){
             toolBar.add(new TestAction(type.name()));
+        }
+        toolBar.addSeparator();
+        for (int i=0;i<sessions.length;i++){
+            toolBar.add(new TestAction(sessions[i]));
         }
 
         setJMenuBar(menuBar);
@@ -142,6 +164,7 @@ public class Test5  extends JFrame{
     }
     
     public void doCommand(String command){
+        ChartSeries series;
         switch (command){
             case "exit":
                 System.exit(0);
@@ -149,9 +172,28 @@ public class Test5  extends JFrame{
             case "open":
                 readData();
                 break;
+                
+            case "auto":
+                chart.autoRange();
+                chart.updateUI();
+                break;
+            case "auto2":
+                chart.autoRang2();
+                chart.updateUI();
+                break;
             case "BAR_CHART":case "LINE_CHART":case "AREA_CHART":case "STACKED":
                 seriesType = SeriesType.valueOf(command);
                 readData();
+                if (command.equals("STACKED")){
+                    chart.autoRang2();
+                }
+                break;
+            case "Зима":case "Весна":case "Лето":case "Осень":
+                series=chart.findSeries(command);
+                if (series!=null){
+                    series.setVisible(!series.isVisible());
+                    chart.updateUI();
+                }
                 break;
             default:
                 System.out.println(command);
@@ -159,9 +201,8 @@ public class Test5  extends JFrame{
     }
     
     private ChartSeries createSeries( Integer session){
-        Color[] sessionColor= new Color[]{Color.cyan,Color.green,Color.yellow,Color.pink};
         DataModel model = (DataModel)table.getModel();
-        ChartSeries series = ChartSeries.createSeries(seriesType, "Session"+session, sessionColor[session]);
+        ChartSeries series = ChartSeries.createSeries(seriesType, sessions[session], sessionColor[session]);
         for (Object[] rowset:model.data){
             if (rowset[1].equals(session)){
                 try{
@@ -177,12 +218,13 @@ public class Test5  extends JFrame{
     public void readData(){
         chart.clear();
         ChartSeries series;
-        for (int i=0;i<4;i++){
+        for (int i=0;i<sessions.length;i++){
             series = createSeries(i);
             series.rebuild();
             chart.addSeries(series);
         }
         chart.autoRange();
+    //    chart.autoRang2();
         chart.updateUI();
     }
     
@@ -194,7 +236,7 @@ public class Test5  extends JFrame{
 
         Float tenperature;
         for (int year=2001;year<2015;year++){
-            for (int session=0;session<4;session++){
+            for (int session=0;session<sessions.length;session++){
                 switch (session){
                     case 0:
                         tenperature =new Float(-7.0+Math.random()*10);

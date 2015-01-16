@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.ArrayList;
 import javax.swing.AbstractAction;
 import java.awt.Graphics2D;
+import java.awt.Polygon;
 
 /**
  *
@@ -37,28 +38,93 @@ abstract class ChartSeries{
     protected HashMap<Integer, Object> data = new HashMap<>();
     protected List<ChartElement> elements = new ArrayList<>();
     protected SeriesType seriesType;
-    
-    public abstract void draw(Graphics g);
-    public abstract ChartElement createElement(Integer id);
-    
-    
-    public Point getElementPoint(Integer xPosition){
-        Integer x,y;
-        Float kx,ky;
-        Rectangle r = chart.getWorkArea();
+    protected boolean visible = true;
+    protected boolean threeD = false;
 
-        ChartElement element = findElement(xPosition);
-        if (element == null) return null;
-        
-        ky = new Float(r.height/(chart.yAxis.maxValue-chart.yAxis.minValue));
-        kx = new Float(r.width/(chart.xAxis.maxValue-chart.xAxis.minValue));
-        y = r.y+r.height - element.getValueK(ky) + Math.round(chart.yAxis.minValue*ky);
-        x = r.x+ Math.round((xPosition-chart.xAxis.minValue)*kx);
+    public boolean isVisible() {
+        return visible;
+    }
 
-        return new Point(x,y);
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
     
 
+    /**
+     * Возвращает соличество серий тогоже типа
+     * @return 
+     */
+    public Integer getSeriesCount(){
+        Integer result = 0;
+        for (ChartSeries series:chart.getSeries()){
+            if (series.seriesType== this.seriesType){
+                result+=1;
+            }
+        }
+        return result;
+    }
+    
+    public Integer getOffset(){
+        Integer  result = 0;
+        for (ChartSeries series:chart.seriesList){
+            if (series==this){
+                return result;
+            }
+            result+=20;
+        }
+        return result;
+    }
+    
+    
+    public abstract void draw(Graphics g);
+    
+    
+    /**
+     * Метод создаёт элемент серии по умолчанию DefaultChartElement
+     * @param id
+     * @return 
+     */
+    protected  ChartElement createElement(Integer id){
+        return new DefaultChartElement(this,id);
+    };
+    
+     /**
+     * Поиск элемента серии по значению X
+     * @param xValue - значение элемента по оси X
+     * @return  если элемент существует - найденный ChartElement,
+     *  в противном случае null
+     */
+    public ChartElement findElement(Integer xValue) {
+        for (ChartElement element : elements) {
+            if (element.position.equals(xValue)) {
+                return element;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Поис точки соответсвующей значению элемента на чарте
+     * @param element ChartElement;
+     * @return Point точка на чарте
+     */
+    public Point getElementPoint(ChartElement element){
+        int x,y;
+        float kx,ky;
+        Rectangle r = chart.getWorkArea();
+        Object v = data.get(element.position);
+        if (v==null){
+            return null;
+        }
+        ky = chart.getkY();
+        kx = chart.getkX();
+        y = r.y+r.height - element.getValueK(ky) + Math.round(chart.yAxis.minValue*ky);
+        x = r.x+ Math.round((element.position-chart.xAxis.minValue)*kx);
+        
+        return new Point(x,y);
+    }
+    
+    
     public ChartSeries(String name, Color color) {
         this.color = color;
         this.name = name;
@@ -87,21 +153,6 @@ abstract class ChartSeries{
         return elements;
     }
     
-    /**
-     * Поиск элемента серии по значению X
-     * @param xValue - значение элемента по оси X
-     * @return  если элемент существует - найденный ChartElement,
-     *  в противном случае null
-     */
-    public ChartElement findElement(Integer xValue) {
-        for (ChartElement element : elements) {
-            if (element.position.equals(xValue)) {
-                return element;
-            }
-        }
-        return null;
-    }
-
     /**
      * Получение элемента по порядковому номеру
      * @param index номер элемента по порядку в списке
@@ -192,8 +243,11 @@ abstract class ChartSeries{
         return null;
     }
     
-
-    
+    /**
+     * Добавление элемента в серию
+     * @param xValue
+     * @param yValue 
+     */
     public void addValue(Integer xValue, Object yValue) {
         if (yValue instanceof String){
             Float f = Float.parseFloat((String)yValue);
@@ -202,7 +256,23 @@ abstract class ChartSeries{
             data.put(xValue, yValue);
     }
 
+    /**
+     * Удаление елемента из серии
+     * @param xValue 
+     */
+    public void removeValue(Integer xValue){
+        
+    }
     
+
+    public void setData(HashMap<Integer, Object> data) {
+        this.data = new HashMap<>();
+        for (Integer key : data.keySet()) {
+            this.data.put(key, data.get(key));
+        }
+        rebuild();
+    }
+
     public void rebuild() {
         elements = new ArrayList<>();
         Set<Integer> keySet = data.keySet();
@@ -215,15 +285,6 @@ abstract class ChartSeries{
             elements.add(element);
         }
     }
-
-    public void setData(HashMap<Integer, Object> data) {
-        this.data = new HashMap<>();
-        for (Integer key : data.keySet()) {
-            this.data.put(key, data.get(key));
-        }
-        rebuild();
-    }
-
 
     /**
      * Создание экземпляра случайных данных с указанным количеством элементов
@@ -244,13 +305,13 @@ abstract class ChartSeries{
         ChartSeries series;
         switch (seriesType){
             case BAR_CHART:
-                series = new ChartBarSeries(caption, color);             
+                series = new BarSeries(caption, color);             
                 break;
             case LINE_CHART:
-                series = new ChartLineSeries(caption,color);
+                series = new LineSeries(caption,color);
                 break;
             case AREA_CHART:
-                series=new ChartAreaSeries(caption, color);
+                series=new AreaSeries(caption, color);
                 break;
             case STACKED:
                 series= new StackedSeries(caption,color);
@@ -264,60 +325,9 @@ abstract class ChartSeries{
 }
 
 
-class ChartLineSeries extends ChartSeries{
+class LineSeries extends ChartSeries{
 
-    public ChartLineSeries(String name, Color color) {
-        super(name, color);
-    }
-    
-    @Override
-    public String toString(){
-        return "LineSeries "+name+" "+color;
-    }
-
-    @Override
-    public void draw(Graphics g) {
-        int xPosition;
-        Rectangle r = chart.getWorkArea();
-        int xMinValue,xMaxValue,yMinValue,yMaxValue;
-        xMinValue = chart.xAxis.minValue;
-        xMaxValue = chart.xAxis.maxValue;
-        yMinValue=chart.yAxis.minValue;
-        yMaxValue = chart.yAxis.maxValue;
-        
-        float kx= r.width/(xMaxValue-xMinValue);
-        float ky = r.height/(yMaxValue - yMinValue);
-        
-        int x,y;
-        
-        chart.xAxis.begin();
-        while (chart.xAxis.hasNext()){
-            xPosition = chart.xAxis.next();
-            ChartPoint element = (ChartPoint)findElement(xPosition);
-            if (element!=null){
-                x=r.x + Math.round((xPosition-xMinValue) * kx);
-                y=r.y + r.height;
-                y-= Math.round((element.getValue() - chart.yAxis.minValue)*ky);
-                element.bounds = new Rectangle(x-5, y-5, 10, 10);
-                element.draw(g);
-//                g.setColor(element.series.color);
-//                g.fillOval(x-5, y-5, 10, 10);
-//                g.setColor(Color.black);
-//                g.drawOval(x-5, y-5, 10, 10);
-                
-            }
-        }
-    }
-
-    @Override
-    public ChartElement createElement(Integer id) {
-        return new ChartPoint(this, id);
-    }
-}
-
-class ChartAreaSeries extends ChartSeries{
-
-    public ChartAreaSeries(String name, Color color) {
+    public LineSeries(String name, Color color) {
         super(name, color);
     }
     
@@ -326,132 +336,114 @@ class ChartAreaSeries extends ChartSeries{
         Graphics2D g = (Graphics2D)g2;
         g.setStroke(new BasicStroke(4));
         
-        chart.xAxis.begin();
-        Integer xPosition,yPosition;
+        Integer xPosition;
         
         int x,y;
         Integer lastX=null,lastY=null;
-        ChartElement el ;
-        Rectangle r = chart.getWorkArea();
-        float kx,ky;
-        kx = r.width/(chart.xAxis.maxValue-chart.xAxis.minValue);
-        ky = r.height/(chart.yAxis.maxValue-chart.yAxis.minValue);
+        ChartElement element ;
         
+        chart.xAxis.begin();
         while (chart.xAxis.hasNext()){
             xPosition=chart.xAxis.next();
-            el =  findElement(xPosition);
-            if (el==null) continue;
+            element =  findElement(xPosition);
+            if (element!=null){
+                Point p = getElementPoint(element);
             
-            y = r.y+r.height - Math.round((el.getValue()-chart.yAxis.minValue)*ky);
-            x = r.x + Math.round(kx*(xPosition - chart.xAxis.minValue));
             
-            g.setColor(color);
-            g.fillRect(x-5, y-5, 10, 10);
-            
-           
-            if (lastX!=null){
-                g.drawLine(lastX, lastY, x, y);
+                g.setColor(color);
+                g.fillRect(p.x-5, p.y-5, 10, 10);
+
+
+                if (lastX!=null){
+                    g.drawLine(lastX, lastY, p.x, p.y);
+                }
+                lastX=p.x;
+                lastY=p.y;
             }
-            lastX=x;
-            lastY=y;
         }
         g.setStroke(new BasicStroke(1));
     }
 
-    @Override
-    public ChartElement createElement(Integer id) {
-        return new ChartPoint(this, id);
-    }
-    
 }
 
-class ChartBarSeries extends ChartSeries{
+class BarSeries extends ChartSeries{
 
-    public ChartBarSeries(String name, Color color) {
+    public BarSeries(String name, Color color) {
         super(name, color);
     }
     
-    @Override
-    public String toString(){
-        return "BarSeries "+name+" "+color;
-    }
+    
+    public void drawElement(Graphics g,ChartElement element){
+        Integer xOffset = getOffset();
+        Integer height;
+        Point p = getElementPoint(element);
+        Rectangle bound;
+        
+        Float ky = chart.getkY();
+        Rectangle r = chart.getWorkArea();
+        
+        int y2 = r.y+r.height + Math.round(chart.yAxis.minValue*ky);
+        
+        height = Math.abs(y2 - p.y);
+        
+        if (y2>p.y)
+            bound = new Rectangle(p.x+xOffset,p.y,20,height);
+        else
+            bound =  new Rectangle(p.x+xOffset,y2,20,height);
+        element.bounds=bound;
+        g.setColor(color);
+        g.fillRect(bound.x, bound.y, bound.width, bound.height);
+        
+        g.setColor(Color.lightGray);
+        g.drawRect(bound.x, bound.y, bound.width, bound.height);
+        
 
+        Polygon pg = new Polygon(
+                new int[]{bound.x,
+                    bound.x+10,
+                    bound.x+10+bound.width,
+                    bound.x+10+bound.width,
+                    bound.x+bound.width,
+                    bound.x+bound.width,
+                    bound.x},
+                new int[]{
+                    bound.y,
+                    bound.y-10,
+                    bound.y-10,
+                    bound.y-10+bound.height,
+                    bound.y+bound.height,
+                    bound.y,
+                    bound.y},
+                7);
 
-    private Integer getOffset(){
-        Integer result = 0;
-        ChartSeries series;
-        for (Integer i=0;i<chart.getSeriesCount();i++){
-            series = chart.getSeries().get(i);
-            if (series == this)
-                return result;
-            if (seriesType.equals(series.seriesType)){
-                result +=20;
-            }
-        }
-        return result;
+        g.setColor(color);
+        g.fillPolygon(pg);
+        g.setColor(Color.blue);
+        g.drawPolygon(pg);
+        
+        
     }
     
     @Override
     public void draw(Graphics g) {
-        if (chart==null){
-            return ;
-        };
-        
-        int minYValue = chart.yAxis.minValue;
-        int maxYValue = chart.yAxis.maxValue;
-        
-        Rectangle rect = chart.getWorkArea();
-        
-        Integer xValue,yValue,yValue0 ;
-        ChartElement bar;
-        
-        int xOffset = getOffset();
-        
-        float f = rect.height/(maxYValue-minYValue);
-        
-        yValue0 = Math.round(-minYValue*f);
+        ChartElement element;
+        Integer xValue;
         chart.xAxis.begin();
         while (chart.xAxis.hasNext()){
             xValue = chart.xAxis.next();
-            bar = (ChartBar)findElement(xValue);
-            if (bar!=null){
-                
-                yValue = bar.getValueK(f) - Math.round(minYValue*f);
-                                                              
-                int x=chart.getBarCenter(rect, bar.position);
-                int n = chart.getSeriesCount();
-                int x1,y1,w,h;
-                x1 = x+xOffset-(n*20/2);
-                w=20;
-                
-                y1=rect.y+rect.height-yValue;
-                
-                if (yValue>=0)
-                    h=(yValue0>0?yValue-yValue0:yValue);
-                else
-                    h=(yValue0>0?yValue0:yValue);
-                
-                bar.setBounds(new Rectangle(x1,y1,w,h));
-                bar.draw(g);
-                
-                if (yValue0>0){
-                    y1 = rect.y+rect.height-yValue0;
-                    g.drawLine(x1, y1, x1+w, y1);
-                }
+            element = findElement(xValue);
+            if (element!=null){
+                drawElement(g,element);
             }
+            
         }
     }
 
-    @Override
-    public ChartElement createElement(Integer id) {
-        return new ChartBar(this, id);
-    }
-    
 }
 
-class StackedSeries extends ChartSeries{
+class AreaSeries extends ChartSeries{
 
-    public StackedSeries(String name, Color color) {
+    public AreaSeries(String name, Color color) {
         super(name, color);
     }
 
@@ -459,19 +451,108 @@ class StackedSeries extends ChartSeries{
     public void draw(Graphics g) {
         Integer xValue;
         Point p;
+        Integer x1,y1,x2,y2;
+        Integer lastX1=null,lastY1=null,lastX2=null,lastY2=null;
+        Rectangle r = chart.getWorkArea();
         ChartElement element ;
         chart.xAxis.begin();
         while (chart.xAxis.hasNext()){
             xValue = chart.xAxis.next();
             element = findElement(xValue);
             if (element!=null){
+                p = getElementPoint(element);
                 element.draw(g);
+                
+                Float ky = chart.getkY();
+                x1 = p.x;
+                x2 = p.x;
+                y1 = p.y;
+                y2 =0;
+                y2=r.y + r.height + Math.round(chart.yAxis.minValue*ky);
+                g.drawLine(x1, y1,x2,y2);
+                g.fillRect(x2-2, y2-2, 5, 5);
+                      
+                if (lastX1!=null){
+                    g.setColor(color);
+                    int[] px = {lastX1,x1,x2,lastX2,lastX1};
+                    int[] py = {lastY1,y1,y2,lastY2,lastY1};
+                    g.fillPolygon(px, py, 5);
+                    g.setColor(Color.black);
+                    g.drawPolyline(px, py, 5);
+//                    g.fillRect(lastX1, lastY1, x1-lastX2,lastY2-lastY1);
+                }
+                
+                
+                lastX1=x1;
+                lastY1=y1;
+                lastX2= x2;
+                lastY2= y2;
             }
         }
     }
 
+}
+
+class StackedSeries extends ChartSeries{
+
+    public StackedSeries(String name, Color color) {
+        super(name, color);
+    }
+    
+    public void drawElement(Graphics g,ChartElement element){
+        
+        int xOffset = getOffset();
+        int yOffset = 0;
+        
+        if (chart.lastValues.get(element.position)!=null){
+            yOffset = chart.lastValues.get(element.position);
+        }
+        
+        Float kx,ky;
+        kx=chart.getkX();
+        ky=chart.getkY();
+        Point p = getElementPoint(element);
+        Integer height;
+        
+        Rectangle r = chart.getWorkArea();
+        
+        int y2 = r.y+r.height + Math.round( chart.yAxis.minValue*ky);
+        height = Math.abs(y2-p.y);
+
+        Rectangle bound; 
+        if (p.y<y2)
+            bound  = new Rectangle(p.x-10, p.y - yOffset , 20,height );
+        else 
+            bound  = new Rectangle(p.x-10, y2-yOffset, 20, height);
+        element.bounds=bound;
+        
+        chart.lastValues.put(element.position, yOffset + bound.height);
+        
+        g.setColor(color);
+        g.fillRect(bound.x,bound.y,bound.width,bound.height);
+        g.setColor(Color.lightGray);
+        g.drawRect(bound.x,bound.y, bound.width, bound.height);
+         
+        
+        g.setColor(Color.black);
+        g.drawRect(p.x-2,y2-2,5,5);
+        
+    }
+    
+    
     @Override
-    public ChartElement createElement(Integer id) {
-        return new DefaultChartElement(this,id);
+    public void draw(Graphics g) {
+        Integer xValue;
+        ChartElement element;
+        chart.xAxis.begin();
+        while (chart.xAxis.hasNext()){
+            xValue = chart.xAxis.next();
+            element= findElement(xValue);
+            if (element!=null){
+                drawElement(g, element);
+            }
+        }
+        System.out.println(chart.lastValues);
     }
 }
+
