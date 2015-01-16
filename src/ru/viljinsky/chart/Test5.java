@@ -212,6 +212,7 @@ public class Test5  extends JFrame{
                 }
             }
         }
+        series.rebuild();
         return series;
     }
     
@@ -220,7 +221,7 @@ public class Test5  extends JFrame{
         ChartSeries series;
         for (int i=0;i<sessions.length;i++){
             series = createSeries(i);
-            series.rebuild();
+//            series.rebuild();
             chart.addSeries(series);
         }
         chart.autoRange();

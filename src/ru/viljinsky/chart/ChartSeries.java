@@ -1,7 +1,19 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2015 vadim iljinsky
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 package ru.viljinsky.chart;
@@ -16,7 +28,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
-import javax.swing.AbstractAction;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 
@@ -24,14 +35,14 @@ import java.awt.Polygon;
  *
  * @author vadik
  */
-enum SeriesType{
-    BAR_CHART,
-    LINE_CHART,
-    AREA_CHART,
-    STACKED
-}
+//enum SeriesType{
+//    BAR_CHART,
+//    LINE_CHART,
+//    AREA_CHART,
+//    STACKED
+//}
 
-abstract class ChartSeries{
+public abstract class ChartSeries{
     Chart chart = null;
     protected String name = "Noname";
     protected Color color = Color.pink;
@@ -265,6 +276,16 @@ abstract class ChartSeries{
     }
     
 
+    public void setData (String s){
+        this.data = new HashMap<>();
+        for (String s1:s.split(";")){
+            String s2=s1.split("=")[0];
+            String s3=s1.split("=")[1];
+            data.put(Integer.valueOf(s2), Float.valueOf(s3));
+        }
+        rebuild();
+    }
+    
     public void setData(HashMap<Integer, Object> data) {
         this.data = new HashMap<>();
         for (Integer key : data.keySet()) {
@@ -418,7 +439,7 @@ class BarSeries extends ChartSeries{
 
         g.setColor(color);
         g.fillPolygon(pg);
-        g.setColor(Color.blue);
+        g.setColor(Color.lightGray);
         g.drawPolygon(pg);
         
         
