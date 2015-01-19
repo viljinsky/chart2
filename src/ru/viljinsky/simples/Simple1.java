@@ -51,17 +51,18 @@ public class Simple1 extends Chart implements ActionListener{
         
         menuBar.add(menu);
         
-        
-        ChartSeries  series;
-        series = ChartSeries.createSeries(SeriesType.BAR_CHART, "Series1", Color.MAGENTA);
-        series.setData(data);
-        addSeries(series);
-        
+        openChart(SeriesType.AREA_CHART);
         
     }
     
     
     
+    public void openChart(SeriesType type){
+        ChartSeries series;
+        series = ChartSeries.createSeries(type, "series3", Color.ORANGE);
+        series.setData(data);
+        addSeries(series);
+    }
     
     public void doCommand(String command){
         System.out.println(command);
@@ -69,11 +70,13 @@ public class Simple1 extends Chart implements ActionListener{
         SeriesType type;
         switch (command){
             case "BAR_CHART":case "LINE_CHART":case "AREA_CHART": case "STACKED":
-                getSeries().clear();        
+                ChartElement e = getSelectedElement();
+                if (e==null) return;
+                series = e.getSeries();
+                getSeries().remove(series);
+                
                 type = SeriesType.valueOf(command);
-                series = ChartSeries.createSeries(type, "series3", Color.yellow);
-                series.setData(data);
-                addSeries(series);
+                openChart(type);
                 break;
             case "add":    
                 series = ChartSeries.createSeries(SeriesType.BAR_CHART, "Series1", Color.MAGENTA);

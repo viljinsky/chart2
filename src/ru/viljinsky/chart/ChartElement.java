@@ -29,8 +29,12 @@ import java.awt.Rectangle;
  * @author vadik
  */
 
-abstract class ChartElement{
+public abstract class ChartElement{
     ChartSeries series;
+
+    public ChartSeries getSeries() {
+        return series;
+    }
     Integer position;
     Rectangle bounds=null;
     Object value;

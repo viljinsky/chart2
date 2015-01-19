@@ -357,6 +357,13 @@ class LineSeries extends ChartSeries{
         super(name, color);
     }
     
+    public void drawElement(Graphics g,ChartElement element){
+        g.setColor(Color.BLACK);
+        g.drawString(element.value.toString(), element.bounds.x, element.bounds.y);
+        
+        
+    }
+    
     @Override
     public void draw(Graphics g2) {
         Graphics2D g = (Graphics2D)g2;
@@ -376,7 +383,7 @@ class LineSeries extends ChartSeries{
                 Point p = getElementPoint(element);
                
                 Rectangle b = new Rectangle(p.x-5, p.y-5, 10, 10);
-                element.bounds=b;        
+                element.bounds=b;
             
                 g.setColor(color);
                 g.fillRect(b.x, b.y, b.width, b.height);
@@ -392,6 +399,10 @@ class LineSeries extends ChartSeries{
             }
         }
         g.setStroke(new BasicStroke(1));
+        
+        for (ChartElement e:getElements()){
+            drawElement(g2, e);
+        }
     }
 
 }
@@ -483,6 +494,22 @@ class AreaSeries extends ChartSeries{
     public AreaSeries(String name, Color color) {
         super(name, color);
     }
+    
+    public void drawElement(Graphics g,ChartElement element){
+        String label = element.value.toString();
+        int w = g.getFontMetrics().stringWidth(label);
+        int h = g.getFontMetrics().getHeight();
+        Rectangle bound = element.bounds;
+        Rectangle r = new Rectangle(bound.x,bound.y-20,w,h);
+        
+        g.setColor(Color.pink);
+        g.fillRect(r.x, r.y, r.width,r.height);
+        g.setColor(Color.black);
+        g.drawRect(r.x, r.y, r.width,r.height);
+        
+        g.setColor(Color.black);
+        g.drawString(label, r.x,r.y+h);
+    }
 
     @Override
     public void draw(Graphics g) {
@@ -506,8 +533,6 @@ class AreaSeries extends ChartSeries{
                 y1 = p.y;
                 y2 =0;
                 y2=r.y + r.height + (chart.yAxis.minValue<0? Math.round(chart.yAxis.minValue*ky):0);
-//                g.drawLine(x1, y1,x2,y2);
-//                g.fillRect(x2-2, y2-2, 5, 5);
                       
                 if (lastX1!=null){
                     g.setColor(color);
@@ -516,7 +541,6 @@ class AreaSeries extends ChartSeries{
                     g.fillPolygon(px, py, 5);
                     g.setColor(Color.black);
                     g.drawPolyline(px, py, 5);
-//                    g.fillRect(lastX1, lastY1, x1-lastX2,lastY2-lastY1);
                 }
                 
                 
@@ -525,6 +549,10 @@ class AreaSeries extends ChartSeries{
                 lastX2= x2;
                 lastY2= y2;
             }
+        }
+        for (ChartElement el:getElements()){
+            el.draw(g);
+            drawElement(g, el);
         }
     }
 

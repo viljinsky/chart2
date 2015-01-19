@@ -93,7 +93,9 @@ public class Chart extends JPanel{
         }
         series.chart=this;
         seriesList.add(series);
+       
         autoRange();
+        
         
     }
     
