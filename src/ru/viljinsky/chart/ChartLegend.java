@@ -33,6 +33,15 @@ public class ChartLegend {
     Color backGround;
     Color foreGround;
     public Chart chart;
+    boolean visible = true;
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 
     public ChartLegend(Chart chart) {
         this.chart = chart;

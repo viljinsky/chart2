@@ -147,7 +147,7 @@ public class Test4 extends Chart{
     public static void createAndShow(){
         Test4 chart = new Test4();
         JFrame frame = new JFrame("Test4");
-        frame.setTitle("Chart _'"+chart.caption+"'");
+        frame.setTitle("Chart _'"+chart.getCaption()+"'");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Container content = frame.getContentPane();
         content.add(chart);

@@ -40,7 +40,11 @@ import javax.swing.*;
  * @author vadik
  */
 public class Chart extends JPanel{
-    String caption="Chart demo";
+    public static final int BAR = 1;
+    public static final int LINE = 2;
+    public static final int AREA = 3;
+//    String caption="Chart demo";
+    ChartCaption chartCaption;
     Font defaultFont = new Font("courier",Font.PLAIN,12);
     Font captionFont = new Font("courier", Font.BOLD, 24);
     ChartAxis xAxis;
@@ -50,6 +54,97 @@ public class Chart extends JPanel{
     HashMap<Integer, Integer> lastValues; // Для стеков
     ChartElement selectedElement =null;
 
+    //-------------------------------------------------------------------------
+    public String getCaption(){
+        return chartCaption.text;
+    }
+    class ChartCaption{
+
+        public boolean isVisible() {
+            return visible;
+        }
+
+        public void setVisible(boolean visible) {
+            this.visible = visible;
+        }
+        boolean visible = true;
+        String text = "Chart" ;
+        Rectangle bound;
+        Color background = Color.yellow;
+        Color foreground = Color.black;
+        Font font = new Font("courier",Font.BOLD,24);//new Font("courier", Font.BOLD, 24)
+        public ChartCaption(String text){
+            this.text=text;
+        }
+        public void draw(Rectangle  r ,Graphics g){
+            int w,h ;
+            g.setFont(font);
+            w= g.getFontMetrics().stringWidth(text);
+            h= g.getFont().getSize();
+            bound = new Rectangle(r.x,r.y,w,h);
+            
+            int x,y;
+            x= bound.x+(r.width-w)/2;
+            y= bound.y;
+            g.setColor(background);
+            g.fillRect(x,y,w,h);
+            
+            g.setColor(foreground);
+            g.drawString(text,x, y+h);
+        }
+    }
+    class ChartAction extends AbstractAction{
+
+        public ChartAction(String command){
+            super(command);
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            doCommand(e.getActionCommand());
+        }
+    }
+    
+    public JMenu getViewMenu(){
+        String[] command = {"xaxis","yaxis","legent","caption"};
+        JMenu result = new JMenu("view");
+        JMenuItem menuItem;
+        for (String s:command){
+            menuItem=new JMenuItem(new ChartAction(s));
+            result.add(menuItem);
+            
+        }
+        return result;
+        
+    }
+    
+    public void doCommand(String command){
+        System.out.println(command);
+        switch (command){
+            case "xaxis":
+                getXAxis().setVisible(!getXAxis().isVisible());
+                break;
+            case "yaxis":
+                getYAxis().setVisible(!getYAxis().isVisible());
+                break;
+            case "legent":
+                legent.setVisible(!legent.visible);
+                break;
+            case "caption":
+                chartCaption.setVisible(!chartCaption.isVisible());
+                break;
+        }
+        updateUI();
+    }
+    //-----------------------------------------------------
+    
+    public ChartSeries createSeries(Integer seriesType,Color color){
+       
+        ChartSeries result = ChartSeries.createSeries(SeriesType.BAR_CHART, "xxx", color);
+        addSeries(result);
+        return result;
+    }
+    
     public ChartElement getSelectedElement() {
         return selectedElement;
     }
@@ -67,7 +162,8 @@ public class Chart extends JPanel{
     }
 
     public void setCaption(String caption){
-        this.caption=caption;
+        chartCaption.text=caption;
+//        this.caption=caption;
     }
     
     /**
@@ -95,8 +191,6 @@ public class Chart extends JPanel{
         seriesList.add(series);
        
         autoRange();
-        
-        
     }
     
     public void removeSeries(ChartSeries series){
@@ -138,6 +232,7 @@ public class Chart extends JPanel{
         xAxis.caption="X,mm";
         yAxis = new ChartAxis(ChartAxis.Y_AXIS);   
         yAxis.caption="Y";
+        chartCaption = new ChartCaption("Пример1");
         addMouseListener(new MouseAdapter() {
 
             @Override
@@ -221,63 +316,67 @@ public class Chart extends JPanel{
         
         g.setFont(f);
         
-        int fh = g.getFontMetrics(f).getHeight();
+        int fh = g.getFont().getSize();// g.getFontMetrics(f).getHeight();
         int fw;
         String sValue;
         
         Integer value;
         int x1,y1,x2,y2;
         
-        xAxis.begin();
-        while (xAxis.hasNext()){
-            value = xAxis.next();
-            x1=rect.x + Math.round((value-xAxis.minValue) * kX);
-            x2=x1;
-            y1=rect.y;y2=rect.y+rect.height;
-            g.setColor(Color.lightGray);
-            g.drawLine(x1, y1, x2, y2);
-            // Метки
-            if (!value.equals(xAxis.maxValue) && !value.equals(xAxis.minValue)){
-                g.setColor(Color.black);
-                sValue = value.toString();
-                fw = g.getFontMetrics().stringWidth(sValue);
-                g.drawString(sValue, x1- fw/2, y2+fh);
+        if (xAxis.isVisible()){
+            xAxis.begin();
+            while (xAxis.hasNext()){
+                value = xAxis.next();
+                x1=rect.x + Math.round((value-xAxis.minValue) * kX);
+                x2=x1;
+                y1=rect.y;y2=rect.y+rect.height;
+                g.setColor(Color.lightGray);
+                g.drawLine(x1, y1, x2, y2);
+                // Метки
+                if (!value.equals(xAxis.maxValue) && !value.equals(xAxis.minValue)){
+                    g.setColor(Color.black);
+                    sValue = value.toString();
+                    fw = g.getFontMetrics().stringWidth(sValue);
+                    g.drawString(sValue, x1- fw/2, y2+fh);
+                }
             }
+            // Подпись по оси Х
+            sValue = xAxis.caption;
+            x1=rect.x+rect.width-g.getFontMetrics().stringWidth(sValue);
+            y1=rect.y+rect.height;
+            g.setColor(Color.black);
+            g.drawString(sValue, x1, rect.y+rect.height+fh);
         }
-        // Подпись по оси Х
-        sValue = xAxis.caption;
-        x1=rect.x+rect.width-g.getFontMetrics().stringWidth(sValue);
-        y1=rect.y+rect.height;
-        g.setColor(Color.black);
-        g.drawString(sValue, x1, rect.y+rect.height+fh);
         
         //----------------------------------------------------------------------
         
-        yAxis.begin();
-        while (yAxis.hasNext()){
-            value = yAxis.next();
-            x1=rect.x;
-            x2=rect.x+rect.width;
-            y1=rect.y+rect.height- Math.round((value-yAxis.minValue)*kY);
-            y2=y1;
-            g.setColor(Color.lightGray);
-            g.drawLine(x1, y1, x2, y2);
-            
-            if (!value.equals(yAxis.maxValue) && !value.equals(yAxis.minValue)){
-                if (value % yAxis.minorTick ==0 ){
-                    g.setColor(Color.black);
-                    sValue = value.toString();
-                    fw = g.getFontMetrics().stringWidth(value.toString());
-                    g.drawString(sValue, x1-fw-2, y1+fh/2);
+        if (yAxis.isVisible()){
+            yAxis.begin();
+            while (yAxis.hasNext()){
+                value = yAxis.next();
+                x1=rect.x;
+                x2=rect.x+rect.width;
+                y1=rect.y+rect.height- Math.round((value-yAxis.minValue)*kY);
+                y2=y1;
+                g.setColor(Color.lightGray);
+                g.drawLine(x1, y1, x2, y2);
+
+                if (!value.equals(yAxis.maxValue) && !value.equals(yAxis.minValue)){
+                    if (value % yAxis.minorTick ==0 ){
+                        g.setColor(Color.black);
+                        sValue = value.toString();
+                        fw = g.getFontMetrics().stringWidth(value.toString());
+                        g.drawString(sValue, x1-fw-2, y1+fh/2);
+                    }
                 }
             }
+            // подпись по оси Y
+            sValue = yAxis.caption;
+            x1=rect.x - g.getFontMetrics().stringWidth(sValue)-4;
+            y1=rect.y+fh/2;
+            g.setColor(Color.black);
+            g.drawString(sValue, x1, y1);
         }
-        // подпись по оси Y
-        sValue = yAxis.caption;
-        x1=rect.x - g.getFontMetrics().stringWidth(sValue)-4;
-        y1=rect.y+fh/2;
-        g.setColor(Color.black);
-        g.drawString(sValue, x1, y1);
     }
     
     @Override
@@ -312,19 +411,26 @@ public class Chart extends JPanel{
                 series.draw(g);
         }
         
-        int x,y;
-        g.setFont(captionFont);
-        g.setColor(Color.black);
-        x = r.x+r.width/2 - g.getFontMetrics().stringWidth(caption)/2;
-        y = r.y+ g.getFontMetrics().getHeight();
-        g.drawString(caption, x,y);
+//        int x,y,w,h;
+//        g.setFont(captionFont);
+//        g.setColor(Color.black);
+//        w= g.getFontMetrics().stringWidth(chartCaption.text);
+//        h= g.getFont().getSize();
+//        x = r.x+r.width/2 - w/2 ;
+//        y = r.y+ h;
+//        chartCaption.bound=new Rectangle(r.x,r.y,w,h) ;
+        if (chartCaption.isVisible())
+            chartCaption.draw(r,g);
+//        g.drawString(caption, x,y);
         
-        Rectangle r2 = new Rectangle();
-        r2.y= 30;
-        r2.height= 50;
-        r2.x = r.x+r.width- 120;
-        r2.width = 120;
-        legent.draw(g, r2);
+        if (legent.isVisible()){
+            Rectangle r2 = new Rectangle();
+            r2.y= 30;
+            r2.height= 50;
+            r2.x = r.x+r.width- 120;
+            r2.width = 120;
+            legent.draw(g, r2);
+        }
         
     }
     

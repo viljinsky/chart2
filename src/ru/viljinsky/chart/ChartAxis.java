@@ -38,6 +38,15 @@ public class ChartAxis {
     boolean autoRange = true;
     /** Заголовок оси*/
     String caption;
+    boolean visible = true;
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 
     public void setCaption(String caption){
         this.caption=caption;

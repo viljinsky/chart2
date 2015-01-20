@@ -498,7 +498,9 @@ class AreaSeries extends ChartSeries{
     public void drawElement(Graphics g,ChartElement element){
         String label = element.value.toString();
         int w = g.getFontMetrics().stringWidth(label);
-        int h = g.getFontMetrics().getHeight();
+        int h = g.getFont().getSize();
+        
+//        int h = g.getFontMetrics().getHeight();
         Rectangle bound = element.bounds;
         Rectangle r = new Rectangle(bound.x,bound.y-20,w,h);
         

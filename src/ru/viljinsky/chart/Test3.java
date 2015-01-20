@@ -27,7 +27,7 @@ import javax.swing.JFrame;
  */
 public class Test3 extends Chart{
     public Test3(){
-        caption="Средняя температура";
+        setCaption("Средняя температура");
         Object[][] data = {{2005,"1"},{2006,"2.7"},{2007,"2"},{2008,"3.3"},{2009,"4"}};
         Object[][] data1 = {{2005,"3"},{2006,"2.7"},{2007,"7"},{2008,"6.2"},{2009,"1"}};
         
