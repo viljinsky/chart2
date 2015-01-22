@@ -35,12 +35,6 @@ import java.awt.Polygon;
  *
  * @author vadik
  */
-//enum SeriesType{
-//    BAR_CHART,
-//    LINE_CHART,
-//    AREA_CHART,
-//    STACKED
-//}
 
 public abstract class ChartSeries{
     Chart chart = null;
@@ -559,7 +553,10 @@ class AreaSeries extends ChartSeries{
     }
 
 }
-
+/**
+ * Стек бар серия
+ * @author vadik
+ */
 class StackedSeries extends ChartSeries{
 
     public StackedSeries(String name, Color color) {
@@ -599,16 +596,15 @@ class StackedSeries extends ChartSeries{
         g.fillRect(bound.x,bound.y,bound.width,bound.height);
         g.setColor(Color.lightGray);
         g.drawRect(bound.x,bound.y, bound.width, bound.height);
-         
         
         g.setColor(Color.black);
         g.drawRect(p.x-2,y2-2,5,5);
         
     }
     
-    
     @Override
     public void draw(Graphics g) {
+        
         Integer xValue;
         ChartElement element;
         chart.xAxis.begin();
@@ -619,7 +615,7 @@ class StackedSeries extends ChartSeries{
                 drawElement(g, element);
             }
         }
-//        System.out.println(chart.lastValues);
+        
     }
 }
 

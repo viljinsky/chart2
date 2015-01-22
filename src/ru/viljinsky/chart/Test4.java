@@ -71,6 +71,8 @@ public class Test4 extends Chart{
             menu.add(menuItem);
         }
         menuBar.add(menu);
+//        menuBar.add(getSeriesMenu());
+       
         toolBar = new JToolBar();
         for (String s:new String[]{"bar","line","area"}){
             toolBar.add(new A(s,iconPlot)) ;
@@ -141,6 +143,8 @@ public class Test4 extends Chart{
         
         autoRange();
         updateUI();
+        menuBar.add(getSeriesMenu());
+
         
     }
     

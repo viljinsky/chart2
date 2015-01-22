@@ -29,10 +29,12 @@ import ru.viljinsky.chart.*;
 public class Simple2 extends Chart{
     public static JMenuBar menuBar = new JMenuBar();
     public Simple2(){
-        createSeries(BAR,Color.CYAN).setData("2001=10;2002=20;2003=12");
+        createSeries(LINE,Color.CYAN).setData("2001=10;2002=20;2003=12");
         createSeries(BAR,Color.MAGENTA).setData("2001=11;2002=19;2003=12.2");
         autoRange();
         menuBar.add(getViewMenu());
+        menuBar.add(getSeriesMenu());
+        menuBar.add(getSeriesTypeMenu());
     }
     
     public static void main(String[] args){

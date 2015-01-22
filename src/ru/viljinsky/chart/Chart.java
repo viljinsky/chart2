@@ -43,16 +43,106 @@ public class Chart extends JPanel{
     public static final int BAR = 1;
     public static final int LINE = 2;
     public static final int AREA = 3;
-//    String caption="Chart demo";
+    public static final int STACK = 4;
+    
     ChartCaption chartCaption;
     Font defaultFont = new Font("courier",Font.PLAIN,12);
     Font captionFont = new Font("courier", Font.BOLD, 24);
-    ChartAxis xAxis;
-    ChartAxis yAxis;
+    ChartAxis xAxis; /** Ось оординат */
+    ChartAxis yAxis; /** Ось абсцис */
     List<ChartSeries> seriesList = new ArrayList<>();
     ChartLegend legent;
     HashMap<Integer, Integer> lastValues; // Для стеков
     ChartElement selectedElement =null;
+    ViewMenu viewMenu;
+    
+    public ChartSeries createSeries(Integer sType,Color color){
+        
+        SeriesType type ;
+        switch (sType){
+                case BAR : type = SeriesType.BAR_CHART;
+                    break;
+                case AREA: type = SeriesType.AREA_CHART;
+                    break;
+                case LINE: type = SeriesType.LINE_CHART;
+                    break;
+                case STACK: type = SeriesType.STACKED;
+                    break;
+                default:
+                    type = SeriesType.BAR_CHART;
+                    
+        };
+        ChartSeries result = ChartSeries.createSeries(type, type.name(), color);
+        addSeries(result);
+        return result;
+    }
+    
+    abstract class ChartMenu{
+        Action[] actions;
+        class ChartAction extends AbstractAction{
+
+            public ChartAction(String command){
+                super(command);
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                doCommand(e.getActionCommand());
+                updateActionList();
+            }
+        }
+        public ChartMenu(String[] commands){
+            actions = new Action[commands.length];
+            for (int i=0;i<actions.length;i++){
+                actions[i]=new ChartAction(commands[i]);
+            }
+        }
+        
+        public abstract void doCommand(String command);
+        
+        protected void updateActionList(){
+            for (Action action:actions){
+                updateAction(action);
+            }
+        }
+        
+        public abstract void updateAction(Action action);
+        
+    }
+    
+    class ViewMenu extends ChartMenu{
+    
+        public ViewMenu(){
+            super(new String[]{"xaxis","yaxis","legent","caption"});
+        }
+        
+        @Override
+        public void doCommand(String command){
+            System.out.println(command);
+            switch (command){
+                case "xaxis":
+                    getXAxis().setVisible(!getXAxis().isVisible());
+                    break;
+                case "yaxis":
+                    getYAxis().setVisible(!getYAxis().isVisible());
+                    break;
+                case "legent":
+                    legent.setVisible(!legent.visible);
+                    break;
+                case "caption":
+                    chartCaption.setVisible(!chartCaption.isVisible());
+                    break;
+            }
+            updateUI();
+        }
+
+        @Override
+        public void updateAction(Action action) {
+            System.out.println(action.getValue(AbstractAction.NAME));//action.getValue(AbstractAction.ACTION_COMMAND_KEY));
+        }
+        
+    }
+    
 
     //-------------------------------------------------------------------------
     public String getCaption(){
@@ -81,7 +171,7 @@ public class Chart extends JPanel{
             g.setFont(font);
             w= g.getFontMetrics().stringWidth(text);
             h= g.getFont().getSize();
-            bound = new Rectangle(r.x,r.y,w,h);
+            bound = new Rectangle(r.x,r.y+5,w,h);
             
             int x,y;
             x= bound.x+(r.width-w)/2;
@@ -90,60 +180,80 @@ public class Chart extends JPanel{
             g.fillRect(x,y,w,h);
             
             g.setColor(foreground);
-            g.drawString(text,x, y+h);
+            g.drawString(text,x, y+h-5);
         }
     }
-    class ChartAction extends AbstractAction{
-
-        public ChartAction(String command){
-            super(command);
+    public JMenu getViewMenu(){
+        JMenu result = new JMenu("view");
+        for (Action action:viewMenu.actions){
+            result.add(action);
         }
+        return result;
         
+    }
+    
+    //--------------------------------------------------------------------------
+    class SeriesMenuItem extends JCheckBoxMenuItem implements ActionListener{
+        ChartSeries series;
+        public SeriesMenuItem(ChartSeries series){
+            super(series.name);
+            this.series=series;
+            addActionListener(this);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {           
+            series.setVisible(this.getState());
+            Chart.this.updateUI();
+        }
+    }
+    
+    
+    public JMenu getSeriesMenu(){
+        JMenu result = new JMenu("series");
+        SeriesMenuItem  menuItem;
+        for (ChartSeries series:getSeries()){
+            menuItem = new SeriesMenuItem(series);
+            menuItem.setState(true);
+            result.add(menuItem);
+        }
+        return result;
+    }
+
+    
+//------------------------------------------------------------  
+    ButtonGroup group = new ButtonGroup();
+    
+    class SeriesTypeMenuItem extends JRadioButtonMenuItem implements ActionListener{
+        SeriesType type;
+        public SeriesTypeMenuItem(SeriesType type){
+            super(type.name());
+            this.type=type;
+            addActionListener(this);
+        }
+
         @Override
         public void actionPerformed(ActionEvent e) {
-            doCommand(e.getActionCommand());
-        }
-    }
-    
-    public JMenu getViewMenu(){
-        String[] command = {"xaxis","yaxis","legent","caption"};
-        JMenu result = new JMenu("view");
-        JMenuItem menuItem;
-        for (String s:command){
-            menuItem=new JMenuItem(new ChartAction(s));
-            result.add(menuItem);
             
+            System.out.println(e.getActionCommand());
         }
-        return result;
+    }
+    
+    public JMenu getSeriesTypeMenu(){
+        JMenu result = new JMenu("seriesType");
+        SeriesTypeMenuItem menuItem;
+        for (SeriesType type:SeriesType.values()){
+            menuItem = new SeriesTypeMenuItem(type);
+            menuItem.setSelected(true);
+            group.add(menuItem);
+            result.add(menuItem);
+        }
         
-    }
-    
-    public void doCommand(String command){
-        System.out.println(command);
-        switch (command){
-            case "xaxis":
-                getXAxis().setVisible(!getXAxis().isVisible());
-                break;
-            case "yaxis":
-                getYAxis().setVisible(!getYAxis().isVisible());
-                break;
-            case "legent":
-                legent.setVisible(!legent.visible);
-                break;
-            case "caption":
-                chartCaption.setVisible(!chartCaption.isVisible());
-                break;
-        }
-        updateUI();
-    }
-    //-----------------------------------------------------
-    
-    public ChartSeries createSeries(Integer seriesType,Color color){
-       
-        ChartSeries result = ChartSeries.createSeries(SeriesType.BAR_CHART, "xxx", color);
-        addSeries(result);
         return result;
     }
+    
+//-----------------------------------------------------
+    
     
     public ChartElement getSelectedElement() {
         return selectedElement;
@@ -233,6 +343,7 @@ public class Chart extends JPanel{
         yAxis = new ChartAxis(ChartAxis.Y_AXIS);   
         yAxis.caption="Y";
         chartCaption = new ChartCaption("Пример1");
+        viewMenu = new ViewMenu();
         addMouseListener(new MouseAdapter() {
 
             @Override
@@ -411,17 +522,8 @@ public class Chart extends JPanel{
                 series.draw(g);
         }
         
-//        int x,y,w,h;
-//        g.setFont(captionFont);
-//        g.setColor(Color.black);
-//        w= g.getFontMetrics().stringWidth(chartCaption.text);
-//        h= g.getFont().getSize();
-//        x = r.x+r.width/2 - w/2 ;
-//        y = r.y+ h;
-//        chartCaption.bound=new Rectangle(r.x,r.y,w,h) ;
         if (chartCaption.isVisible())
             chartCaption.draw(r,g);
-//        g.drawString(caption, x,y);
         
         if (legent.isVisible()){
             Rectangle r2 = new Rectangle();
